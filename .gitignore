@@ -1,0 +1,9 @@
+.ninja*
+build.ninja
+cmake*
+CMake*
+Makefile
+CMakeFiles/
+.fleet
+.cache
+sapc
