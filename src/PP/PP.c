@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "PP.h"
+#include "../STR/str.h"
+#include "../VEC/vector.h"
 
 
 //on error size is location where error occurred
@@ -90,4 +92,72 @@ sap_scs_file sap_pp_phase2(sap_scs_file* src_file)
 
 	free(src_file->data);
 	return (sap_scs_file) {new_data, src_file->size - j};
+}
+
+//rvalue is number of chars in returned token, 0 means invalid token
+int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
+{
+	if (*str == '#')
+	{
+		out_token->type = pp_directive;
+		out_token->str = str;
+
+		int i = 0;
+		while (str[i] != '\n')
+		{
+			i++;
+		}
+
+		out_token->len = i;
+		return i;
+	}
+
+	if (len == 1)
+	{
+		out_token->type = reg_char;
+		out_token->len = 1;
+		out_token->str = str;
+		return 1;
+	}
+
+	return 0;
+}
+
+sap_pp_token_arr sap_pp_phase3(sap_scs_file* src)
+{
+	int start = sap_str_first_nonspace(src->data);
+	int end = sap_str_first_space(src->data + start);
+
+	sap_vector tokens = sap_vec_create(sizeof(sap_pp_token), src->size / 2);
+
+	sap_pp_token tok;
+	int i = 0;
+	loop: while (start < end)
+	{
+		i = sap_pp_into_token(src->data + start, end - start, &tok);
+		if (i == 0)
+		{
+			end--;
+			continue;
+		}
+
+		sap_vec_add(&tokens, &tok);
+		start += i;
+	}
+
+	if (end < src->size)
+	{
+		start = sap_str_first_nonspace(src->data + start) + start;
+		end = sap_str_first_space(src->data + start) + end;
+		i = 0;
+		goto loop;
+	}
+
+	sap_vec_reserve(&tokens, tokens.elem_count);
+
+	sap_pp_token_arr arr;
+	arr.count = tokens.elem_count;
+	arr.tokens = tokens.data;
+
+	return arr;
 }

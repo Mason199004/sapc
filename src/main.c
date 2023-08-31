@@ -14,4 +14,18 @@ int main()
 	}
 	putchar('\n');
 	printf("%ld", file3.size);
+
+	sap_pp_token_arr tokens = sap_pp_phase3(&file3);
+	puts("");
+	for (int i = 0; i < tokens.count; ++i)
+	{
+		sap_pp_token t = tokens.tokens[i];
+		printf("'");
+		for (int j = 0; j < t.len; ++j)
+		{
+			putchar(t.str[j]);
+		}
+		printf("'");
+	}
+	puts("");
 }
