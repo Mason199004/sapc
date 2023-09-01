@@ -55,6 +55,7 @@ sap_scs_file sap_pp_phase2(sap_scs_file* src_file)
 		{
 			return (sap_scs_file) {NULL, -1};
 		}
+		src_file->data[src_file->size - 1] = '\n';
 	}
 	if (src_file->data[src_file->size - 2] == '\\')
 	{
@@ -94,6 +95,7 @@ sap_scs_file sap_pp_phase2(sap_scs_file* src_file)
 	return (sap_scs_file) {new_data, src_file->size - j};
 }
 
+#include "tokenizer.h"
 //rvalue is number of chars in returned token, 0 means invalid token
 int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 {
@@ -110,6 +112,14 @@ int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 
 		out_token->len = i;
 		return i;
+	}
+
+	if (sap_tokenizer_is_identifier(str, len))
+	{
+		out_token->type = identifier;
+		out_token->str = str;
+		out_token->len = len;
+		return len;
 	}
 
 	if (len == 1)
@@ -132,7 +142,8 @@ sap_pp_token_arr sap_pp_phase3(sap_scs_file* src)
 
 	sap_pp_token tok;
 	int i = 0;
-	loop: while (start < end)
+	loop: if (start >= src->size)  goto done;
+	while (start < end)
 	{
 		i = sap_pp_into_token(src->data + start, end - start, &tok);
 		if (i == 0)
@@ -148,11 +159,11 @@ sap_pp_token_arr sap_pp_phase3(sap_scs_file* src)
 	if (end < src->size)
 	{
 		start = sap_str_first_nonspace(src->data + start) + start;
-		end = sap_str_first_space(src->data + start) + end;
+		end = sap_str_first_space(src->data + start) + start;
 		i = 0;
 		goto loop;
 	}
-
+	done:
 	sap_vec_reserve(&tokens, tokens.elem_count);
 
 	sap_pp_token_arr arr;
