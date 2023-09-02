@@ -29,7 +29,7 @@ void sap_vec_reserve(sap_vector* vec, int elem_count)
 	}
 	else
 	{
-		_assert("realloc failed", __FILE__, __LINE__);
+		__assert("realloc failed", __FILE__, __LINE__);
 	}
 }
 

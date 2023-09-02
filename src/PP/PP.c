@@ -114,7 +114,13 @@ int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 		return i;
 	}
 
-
+	if (sap_tokenizer_is_punctuator(str, len))
+	{
+		out_token->type = punctuator;
+		out_token->str = str;
+		out_token->len = len;
+		return len;
+	}
 	if (sap_tokenizer_is_identifier(str, len))
 	{
 		out_token->type = identifier;
@@ -122,7 +128,14 @@ int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 		out_token->len = len;
 		return len;
 	}
-
+	int i = 0;
+	if ((i = sap_tokenizer_is_string_lit(str, len)))
+	{
+		out_token->len = i;
+		out_token->str = str;
+		out_token->type = string_lit;
+		return i;
+	}
 	if (len == 1)
 	{
 		out_token->type = reg_char;
@@ -136,8 +149,8 @@ int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 
 sap_pp_token_arr sap_pp_phase3(sap_scs_file* src)
 {
-	int start = sap_str_first_nonspace(src->data);
-	int end = sap_str_first_space(src->data + start);
+	int start = sap_str_first_nonspace(src->data, src->size);
+	int end = sap_str_first_space(src->data + start, src->size - start);
 
 	sap_vector tokens = sap_vec_create(sizeof(sap_pp_token), src->size / 2);
 
@@ -159,8 +172,8 @@ sap_pp_token_arr sap_pp_phase3(sap_scs_file* src)
 
 	if (end < src->size)
 	{
-		start = sap_str_first_nonspace(src->data + start) + start;
-		end = sap_str_first_space(src->data + start) + start;
+		start = sap_str_first_nonspace(src->data + start, src->size - start) + start;
+		end = sap_str_first_space(src->data + start, src->size - start) + start;
 		i = 0;
 		goto loop;
 	}

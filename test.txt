@@ -2,4 +2,7 @@
 
 line 1
 line 2* \
-line 3tes
+line 3tes"some text \n "
+
+tt\
+"bad str\j "
