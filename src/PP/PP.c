@@ -114,6 +114,7 @@ int sap_pp_into_token(const char* str, int len, sap_pp_token* out_token)
 		return i;
 	}
 
+
 	if (sap_tokenizer_is_identifier(str, len))
 	{
 		out_token->type = identifier;

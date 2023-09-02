@@ -1,4 +1,5 @@
 #include "tokenizer.h"
+#include "../STR/str.h"
 #include <string.h>
 
 const char* keywords[] = {
@@ -56,4 +57,12 @@ bool sap_tokenizer_is_identifier(const char* str, int len)
 	}
 	return true;
 #undef x
+}
+
+bool sap_tokenizer_is_string_lit(const char* str, int len)
+{
+    if (sap_strn_matches(str, len, 4, "u", "U", "L", "u8"))
+    {
+
+    }
 }
